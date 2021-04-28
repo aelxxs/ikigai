@@ -1,178 +1,147 @@
-import { Token, TokenType } from '../types/Token';
-import { Part, PartType } from '../types/Part';
-import { Lexer } from './Lexer';
+import { Lexer, TokenType, ReadonlyToken, TokenGenerator } from './Lexer';
 
 export class Parser {
-	private input: IterableIterator<Token>;
-	private parts: Part[] = [];
-	private stack: Part[] = [];
+	private input: TokenGenerator;
+	private stack: ReadonlyToken[] = [];
+	private nodes: Node[] = [];
 
-	public constructor(public string: string) {
-		this.input = new Lexer(string)[Symbol.iterator]();
+	public constructor(str: string) {
+		this.input = new Lexer(str)[Symbol.iterator]();
 	}
 
 	public parse() {
 		let buffer = '';
 
 		for (const token of this.input) {
-			if (token.type === TokenType.TagStart) {
+			if (token.type == TokenType.TagStart) {
 				if (buffer.length) {
-					this.parts.push({ type: PartType.Literal, value: buffer });
+					this.nodes.push({
+						type: NodeType.Literal,
+						value: buffer,
+					});
 					buffer = '';
 				}
-
-				const tag = this.parseBlock();
-
-				this.parts.push(tag);
-			} else buffer += this.toString(token);
-		}
-
-		if (buffer.length > 0) {
-			this.parts.push({ type: PartType.Literal, value: buffer });
-		}
-
-		return this.parts;
-	}
-
-	public parseBlock() {
-		let finished = false;
-		let isFunction = false;
-		const name = this.pick(TokenType.Literal).value;
-		const next = this.nextExcluding(TokenType.Space, [TokenType.TagStart, TokenType.Literal]);
-
-		let val;
-
-		if (next.type === TokenType.Colon) {
-			val = { type: PartType.Variable, name, ...this.parseTagType() };
-		} else if (next.type === TokenType.FuncStart) {
-			isFunction = true;
-			val = { type: PartType.Function, name, ...this.parseFunction() };
-		} else if (next.type === TokenType.TagEnd) {
-			finished = true;
-			val = { type: PartType.Variable, name };
-		} else {
-			if (!isFunction) {
-				throw `Expected TagEnd, FuncStart, or Colon but received ${TokenType[next.type]}`;
+				this.nodes.push(this.parseTag());
+			} else {
+				buffer += token.value;
 			}
 		}
 
-		while (!finished) {
-			const token = this.nextExcluding(TokenType.Space);
+		if (buffer.length) {
+			this.nodes.push({
+				type: NodeType.Literal,
+				value: buffer,
+			});
+		}
+
+		return this.nodes;
+	}
+
+	private parseTag() {
+		let done = false;
+
+		const name = this.omit(TokenType.Space).value;
+		const next = this.omit(TokenType.Space);
+
+		const args = [];
+
+		if (next.type === TokenType.Colon) {
+			let arg = this.parseArg();
+
+			while (arg) {
+				args.push(arg);
+				arg = this.parseArg();
+			}
+
+			if (!args.length) {
+				throw '[ERROR]: Tag payload must have at least one argument.';
+			}
+		}
+
+		if (next.type === TokenType.TagEnd) {
+			done = true;
+		}
+
+		while (!done) {
+			const token = this.omit(TokenType.Space);
 
 			if (token.type === TokenType.TagEnd) {
 				break;
 			}
 		}
 
-		return val;
+		return { type: NodeType.Tag, name, args };
 	}
 
-	private parseFunction() {
+	private parseArg() {
+		const nodes = [];
+
 		let buffer = '';
 
-		const args = [];
-
 		while (true) {
-			const part = this.nextExcluding(TokenType.Space, [
-				TokenType.FuncEnd,
-				TokenType.TagStart,
-				TokenType.Literal,
-			]);
+			const token = this.next();
 
-			if (part.type === TokenType.FuncEnd) {
-				this.stack.push(part);
-
+			if (token.type === TokenType.Pipe) {
 				break;
-			}
-
-			if (part.type === TokenType.TagStart) {
-				args.push(this.parseBlock());
-			} else if (part.type === TokenType.Literal) {
-				args.push({ type: PartType.Literal, value: part.value });
-			} else buffer += this.toString(part);
-		}
-
-		// if (buffer.length > 0) {
-		// 	args.push({ type: PartType.Literal, value: buffer });
-		// }
-
-		return { args };
-	}
-
-	private parseTagType() {
-		const args = [];
-
-		while (true) {
-			const part = this.nextExcluding(TokenType.Space);
-
-			if (part.type === TokenType.TagEnd) {
-				this.stack.push(part);
-
+			} else if (token.type === TokenType.TagEnd) {
+				this.stack.push(token);
 				break;
-			}
-
-			if (part.type === TokenType.TagStart) {
-				args.push(this.parseBlock());
-			}
-
-			if (part.type === TokenType.Literal) {
-				args.push({ type: PartType.Literal, value: part.value });
-			}
+			} else if (token.type === TokenType.TagStart) {
+				if (buffer.length) {
+					nodes.push({
+						type: NodeType.Literal,
+						value: buffer,
+					});
+					buffer = '';
+				}
+				nodes.push(this.parseTag());
+			} else buffer += token.value;
 		}
 
-		return { args };
-	}
-
-	private next(expect?) {
-		if (this.stack.length) return this.stack.pop()!;
-
-		const result = this.input.next();
-
-		if (result.done)
-			throw `Expected ${
-				expect?.map((e) => TokenType[e]).join(', ') ?? 'a character'
-			}, but reached the end of the string.`;
-
-		return result.value;
-	}
-
-	private nextExcluding(excluded: TokenType, expexted?) {
-		let part = undefined;
-		while ((part = this.next(expexted)).type === excluded) continue;
-
-		return part;
-	}
-
-	private pick(type) {
-		const part = this.next([type]);
-		this.validate(part, type);
-
-		return part;
-	}
-
-	private validate(part, type) {
-		if (part.type !== type) throw `Expected ${TokenType[type]}, received ${TokenType[part.type]}`;
-	}
-
-	private toString(token: Token): string {
-		switch (token.type) {
-			case TokenType.Space:
-				return ' ';
-			case TokenType.TagStart:
-				return '{';
-			case TokenType.TagEnd:
-				return '}';
-			case TokenType.FuncStart:
-				return '(';
-			case TokenType.FuncEnd:
-				return ')';
-			case TokenType.Colon:
-				return ':';
-			case TokenType.Comma:
-				return ',';
-			case TokenType.Literal: {
-				return token.value;
-			}
+		if (buffer.length) {
+			nodes.push({
+				type: NodeType.Literal,
+				value: buffer,
+			});
 		}
+
+		return nodes.length ? { type: NodeType.Argument, nodes } : false;
 	}
+
+	private next() {
+		if (this.stack.length) {
+			return this.stack.pop()!;
+		}
+
+		const { done, value } = this.input.next();
+
+		if (done) {
+			throw '[ERROR]: Reached EOS.';
+		}
+
+		return value;
+	}
+
+	private omit(omit: TokenType) {
+		let token: ReadonlyToken | undefined = undefined;
+
+		while ((token = this.next()).type === omit) {
+			continue;
+		}
+
+		return token;
+	}
+}
+
+export const enum NodeType {
+	Literal,
+	Tag,
+	Argument,
+}
+
+export interface Node {
+	type: NodeType;
+	name?: string;
+	args?: Node[];
+	value?: string;
 }

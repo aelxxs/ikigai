@@ -1,69 +1,97 @@
-import { Token, TokenType } from '../types/Token';
 import { Stream } from './Stream';
-
-const kCharacterSpace = ' '.charCodeAt(0);
-const kCharacterTagStart = '{'.charCodeAt(0);
-const kCharacterTagEnd = '}'.charCodeAt(0);
-const kCharacterColon = ':'.charCodeAt(0);
-const kCharacterPropStart = '('.charCodeAt(0);
-const kCharacterPropEnd = ')'.charCodeAt(0);
-const kCharacterComma = ','.charCodeAt(0);
+import { getCode } from './util';
 
 export class Lexer {
-	public tokens: Token[] = [];
-	public stream: Stream;
-	public buffer = '';
+	private tokens: Token[] = [];
+	private buffer: string = '';
+	private stream: Stream;
 
 	public constructor(str: string) {
 		this.stream = new Stream(str);
 	}
 
-	public *[Symbol.iterator](): Generator<Token> {
+	public *[Symbol.iterator](): TokenGenerator {
 		while (this.stream.next()) {
 			const char = this.stream.peek();
 
-			switch (char.codePointAt(0)) {
-				case kCharacterSpace:
-					yield* this.pushToken({ type: TokenType.Space });
+			switch (getCode(char)!) {
+				case getCode('{'): {
+					yield* this.pushToken({
+						type: TokenType.TagStart,
+						value: '{',
+					});
 					break;
-				case kCharacterTagStart:
-					yield* this.pushToken({ type: TokenType.TagStart });
+				}
+				case getCode(':'): {
+					yield* this.pushToken({
+						type: TokenType.Colon,
+						value: ':',
+					});
 					break;
-				case kCharacterTagEnd:
-					yield* this.pushToken({ type: TokenType.TagEnd });
+				}
+				case getCode('|'): {
+					yield* this.pushToken({
+						type: TokenType.Pipe,
+						value: '|',
+					});
 					break;
-				case kCharacterColon:
-					yield* this.pushToken({ type: TokenType.Colon });
+				}
+				case getCode('}'): {
+					yield* this.pushToken({
+						type: TokenType.TagEnd,
+						value: '}',
+					});
 					break;
-				case kCharacterPropStart:
-					yield* this.pushToken({ type: TokenType.FuncStart });
+				}
+				case getCode(' '): {
+					yield* this.pushToken({
+						type: TokenType.Space,
+						value: ' ',
+					});
 					break;
-				case kCharacterPropEnd:
-					yield* this.pushToken({ type: TokenType.FuncEnd });
-					break;
-				case kCharacterComma:
-					yield* this.pushToken({ type: TokenType.Comma });
-					break;
-				default:
+				}
+				default: {
 					this.buffer += char;
+				}
 			}
 		}
 
 		yield* this.flushTokens();
 	}
 
-	private *pushToken(token: Token) {
+	private *pushToken(token: Token): TokenGenerator {
 		yield* this.flushTokens();
 		this.tokens.push(token);
 		yield token;
 	}
 
-	private *flushTokens() {
-		if (this.buffer !== '') {
-			const token = { type: TokenType.Literal, value: this.buffer };
+	private *flushTokens(): TokenGenerator {
+		if (this.buffer.length) {
+			const token: Token = {
+				type: TokenType.Literal,
+				value: this.buffer,
+			};
+
 			this.tokens.push(token);
 			this.buffer = '';
 			yield token;
 		}
 	}
 }
+
+export const enum TokenType {
+	TagStart,
+	Colon,
+	Pipe,
+	TagEnd,
+	Space,
+	Literal,
+}
+
+export interface Token {
+	type: TokenType;
+	value?: string;
+}
+
+export type ReadonlyToken = Readonly<Token>;
+export type TokenGenerator = IterableIterator<ReadonlyToken>;
