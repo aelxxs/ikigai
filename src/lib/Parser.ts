@@ -3,7 +3,7 @@ import { Lexer, TokenType, ReadonlyToken, TokenGenerator } from './Lexer';
 export class Parser {
 	private input: TokenGenerator;
 	private stack: ReadonlyToken[] = [];
-	private nodes: Node[] = [];
+	private nodes: ASTNode[] = [];
 
 	public constructor(str: string) {
 		this.input = new Lexer(str)[Symbol.iterator]();
@@ -16,7 +16,7 @@ export class Parser {
 			if (token.type == TokenType.TagStart) {
 				if (buffer.length) {
 					this.nodes.push({
-						type: NodeType.Literal,
+						type: ASTNodeType.Literal,
 						value: buffer,
 					});
 					buffer = '';
@@ -29,7 +29,7 @@ export class Parser {
 
 		if (buffer.length) {
 			this.nodes.push({
-				type: NodeType.Literal,
+				type: ASTNodeType.Literal,
 				value: buffer,
 			});
 		}
@@ -70,7 +70,7 @@ export class Parser {
 			}
 		}
 
-		return { type: NodeType.Tag, name, args };
+		return { type: ASTNodeType.Tag, name, args };
 	}
 
 	private parseArg() {
@@ -89,7 +89,7 @@ export class Parser {
 			} else if (token.type === TokenType.TagStart) {
 				if (buffer.length) {
 					nodes.push({
-						type: NodeType.Literal,
+						type: ASTNodeType.Literal,
 						value: buffer,
 					});
 					buffer = '';
@@ -100,12 +100,12 @@ export class Parser {
 
 		if (buffer.length) {
 			nodes.push({
-				type: NodeType.Literal,
+				type: ASTNodeType.Literal,
 				value: buffer,
 			});
 		}
 
-		return nodes.length ? { type: NodeType.Argument, nodes } : false;
+		return nodes.length ? { type: ASTNodeType.Argument, nodes } : false;
 	}
 
 	private next() {
@@ -133,15 +133,15 @@ export class Parser {
 	}
 }
 
-export const enum NodeType {
+export const enum ASTNodeType {
 	Literal,
 	Tag,
 	Argument,
 }
 
-export interface Node {
-	type: NodeType;
+export interface ASTNode {
+	type: ASTNodeType;
 	name?: string;
-	args?: Node[];
+	args?: ASTNode[];
 	value?: string;
 }
