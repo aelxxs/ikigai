@@ -9,7 +9,7 @@ export class Parser {
 		this.input = new Lexer(str)[Symbol.iterator]();
 	}
 
-	public parse() {
+	public parse(): ASTNode[] {
 		let buffer = '';
 
 		for (const token of this.input) {
@@ -37,7 +37,7 @@ export class Parser {
 		return this.nodes;
 	}
 
-	private parseTag() {
+	private parseTag(): ASTNode {
 		let done = false;
 
 		const name = this.omit(TokenType.Space).value;
@@ -73,7 +73,7 @@ export class Parser {
 		return { type: ASTNodeType.Tag, name, args };
 	}
 
-	private parseArg() {
+	private parseArg(): ASTNode | boolean {
 		const nodes = [];
 
 		let buffer = '';
@@ -108,7 +108,7 @@ export class Parser {
 		return nodes.length ? { type: ASTNodeType.Argument, nodes } : false;
 	}
 
-	private next() {
+	private next(): ReadonlyToken {
 		if (this.stack.length) {
 			return this.stack.pop()!;
 		}
@@ -122,7 +122,7 @@ export class Parser {
 		return value;
 	}
 
-	private omit(omit: TokenType) {
+	private omit(omit: TokenType): ReadonlyToken {
 		let token: ReadonlyToken | undefined = undefined;
 
 		while ((token = this.next()).type === omit) {
@@ -139,9 +139,20 @@ export const enum ASTNodeType {
 	Argument,
 }
 
-export interface ASTNode {
-	type: ASTNodeType;
-	name?: string;
-	args?: ASTNode[];
-	value?: string;
+export interface ASTLiteralNode {
+	type: ASTNodeType.Literal;
+	value: string;
 }
+
+export interface ASTTagNode {
+	type: ASTNodeType.Tag;
+	name: string;
+	args: ASTNode[];
+}
+
+export interface ASTArgumentNode {
+	type: ASTNodeType.Argument;
+	nodes?: ASTNode[];
+}
+
+export type ASTNode = ASTLiteralNode | ASTArgumentNode | ASTTagNode;
