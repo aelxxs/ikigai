@@ -1,24 +1,20 @@
 export class Stream {
-	private character = '';
 	private iterator: IterableIterator<string>;
+	private position: string = '';
 
-	public constructor(str: string) {
-		this.iterator = str[Symbol.iterator]();
+	public constructor(string: string) {
+		this.iterator = string[Symbol.iterator]();
 	}
 
 	public peek(): string {
-		return this.character;
+		return this.position;
 	}
 
 	public next(): boolean {
-		const char = this.iterator.next();
+		const { value, done } = this.iterator.next();
 
-		if (char.done) {
-			this.character = '';
-			return false;
-		}
+		this.position = value ?? '';
 
-		this.character = char.value;
-		return true;
+		return !done;
 	}
 }

@@ -9,15 +9,8 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "@skyra/tags": "^1.1.0",
-    "@thesharks/jagtag-js": "^2.0.0",
-    "@types/common-tags": "^1.8.0",
-    "@types/node": "^14.14.34",
-    "@types/strip-indent": "^3.0.2",
-    "common-tags": "^1.8.0",
-    "strip-indent": "^3.0.0",
-    "ts-node": "^9.1.1",
-    "typescript": "^4.2.3"
+  "dependencies": {},
+  "devDependencies": {
+    "nodemon": "^2.0.7"
   }
 }
