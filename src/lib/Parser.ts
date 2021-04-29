@@ -14,7 +14,7 @@ export interface ASTLiteralNode {
 export interface ASTTagNode {
 	type: ASTNodeType.Tag;
 	name: string;
-	args: ASTNode[];
+	args?: ASTNode[];
 }
 
 export interface ASTArgumentNode {
@@ -94,7 +94,16 @@ export class Parser {
 			}
 		}
 
-		return { type: ASTNodeType.Tag, name, args };
+		const tag: ASTNode = {
+			type: ASTNodeType.Tag,
+			name,
+		};
+
+		if (args.length) {
+			tag.args = args;
+		}
+
+		return tag;
 	}
 
 	private parseArg(): ASTNode | boolean {
