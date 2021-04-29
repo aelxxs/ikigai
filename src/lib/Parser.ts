@@ -156,7 +156,7 @@ export class Parser {
 	}
 
 	private omit(omit: TokenType): ReadonlyToken {
-		let token: ReadonlyToken | undefined = undefined;
+		let token: ReadonlyToken | undefined;
 
 		while ((token = this.next()).type === omit) {
 			continue;
