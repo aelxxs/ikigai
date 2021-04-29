@@ -2,8 +2,8 @@ export class Stream {
 	private iterator: IterableIterator<string>;
 	private position: string = '';
 
-	public constructor(string: string) {
-		this.iterator = string[Symbol.iterator]();
+	public constructor(str: string) {
+		this.iterator = str[Symbol.iterator]();
 	}
 
 	public peek(): string {
