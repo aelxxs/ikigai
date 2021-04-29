@@ -1,6 +1,6 @@
 ## 📑 Ikigai
 
-> Ikigai is a simple and fast text parser - based off of JagTags's tag structure.
+> Ikigai is a fast and simple text parser - based off of JagTags's tag structure.
 
 -   UTF-16 Character Encoding Support
 -   `O(n)` Time Complexity Lexer
