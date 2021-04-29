@@ -1,5 +1,29 @@
 import { Lexer, TokenType, ReadonlyToken, TokenGenerator } from './Lexer';
 
+export const enum ASTNodeType {
+	Literal,
+	Tag,
+	Argument,
+}
+
+export interface ASTLiteralNode {
+	type: ASTNodeType.Literal;
+	value: string;
+}
+
+export interface ASTTagNode {
+	type: ASTNodeType.Tag;
+	name: string;
+	args: ASTNode[];
+}
+
+export interface ASTArgumentNode {
+	type: ASTNodeType.Argument;
+	nodes?: ASTNode[];
+}
+
+export type ASTNode = ASTLiteralNode | ASTArgumentNode | ASTTagNode;
+
 export class Parser {
 	private input: TokenGenerator;
 	private stack: ReadonlyToken[] = [];
@@ -132,27 +156,3 @@ export class Parser {
 		return token;
 	}
 }
-
-export const enum ASTNodeType {
-	Literal,
-	Tag,
-	Argument,
-}
-
-export interface ASTLiteralNode {
-	type: ASTNodeType.Literal;
-	value: string;
-}
-
-export interface ASTTagNode {
-	type: ASTNodeType.Tag;
-	name: string;
-	args: ASTNode[];
-}
-
-export interface ASTArgumentNode {
-	type: ASTNodeType.Argument;
-	nodes?: ASTNode[];
-}
-
-export type ASTNode = ASTLiteralNode | ASTArgumentNode | ASTTagNode;

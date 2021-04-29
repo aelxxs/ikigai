@@ -1,6 +1,23 @@
 import { Stream } from './Stream';
 import { getCode } from './util';
 
+export const enum TokenType {
+	TagStart,
+	Colon,
+	Pipe,
+	TagEnd,
+	Space,
+	Literal,
+}
+
+export interface Token {
+	type: TokenType;
+	value?: string;
+}
+
+export type ReadonlyToken = Readonly<Token>;
+export type TokenGenerator = IterableIterator<ReadonlyToken>;
+
 export class Lexer {
 	private tokens: Token[] = [];
 	private buffer: string = '';
@@ -78,20 +95,3 @@ export class Lexer {
 		}
 	}
 }
-
-export const enum TokenType {
-	TagStart,
-	Colon,
-	Pipe,
-	TagEnd,
-	Space,
-	Literal,
-}
-
-export interface Token {
-	type: TokenType;
-	value?: string;
-}
-
-export type ReadonlyToken = Readonly<Token>;
-export type TokenGenerator = IterableIterator<ReadonlyToken>;
