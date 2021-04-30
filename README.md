@@ -35,9 +35,9 @@ console.dir(nodes, { depth: null });
 		type: 1,
 		name: 'choose',
 		args: [
-			{ type: 2, nodes: [{ type: 0, value: '😀' }] },
-			{ type: 2, nodes: [{ type: 0, value: '👋' }] },
-			{ type: 2, nodes: [{ type: 0, value: '🎉' }] },
+			{ type: 2, stems: [{ type: 0, value: '😀' }] },
+			{ type: 2, stems: [{ type: 0, value: '👋' }] },
+			{ type: 2, stems: [{ type: 0, value: '🎉' }] },
 		],
 	},
 	{ type: 0, value: '!' },
