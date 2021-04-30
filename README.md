@@ -25,7 +25,7 @@ const nodes = parse('Hello {user.name} {choose:😀|👋|🎉}!');
 
 console.dir(nodes, { depth: null });
 
-// Logs
+// Parser AST Output
 // 0: Literal | 1: Tag | 2: Tag Argument
 [
 	{ type: 0, value: 'Hello ' },
