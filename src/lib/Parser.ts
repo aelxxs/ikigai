@@ -19,7 +19,7 @@ export interface ASTTagNode {
 
 export interface ASTArgumentNode {
 	type: ASTNodeType.Argument;
-	nodes?: ASTNode[];
+	stems?: ASTNode[];
 }
 
 export type ASTNode = ASTLiteralNode | ASTArgumentNode | ASTTagNode;
@@ -107,7 +107,7 @@ export class Parser {
 	}
 
 	private parseArg(): ASTNode | boolean {
-		const nodes = [];
+		const stems = [];
 
 		let buffer = '';
 
@@ -121,24 +121,24 @@ export class Parser {
 				break;
 			} else if (token.type === TokenType.TagStart) {
 				if (buffer.length) {
-					nodes.push({
+					stems.push({
 						type: ASTNodeType.Literal,
 						value: buffer,
 					});
 					buffer = '';
 				}
-				nodes.push(this.parseTag());
+				stems.push(this.parseTag());
 			} else buffer += token.value;
 		}
 
 		if (buffer.length) {
-			nodes.push({
+			stems.push({
 				type: ASTNodeType.Literal,
 				value: buffer,
 			});
 		}
 
-		return nodes.length ? { type: ASTNodeType.Argument, nodes } : false;
+		return stems.length ? { type: ASTNodeType.Argument, stems } : false;
 	}
 
 	private next(): ReadonlyToken {
