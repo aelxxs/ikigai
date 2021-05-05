@@ -9,7 +9,6 @@ export const enum TokenType {
 	Space,
 	Literal,
 	NewLine,
-	Tab,
 }
 
 export interface Token {
@@ -99,15 +98,6 @@ export class Lexer {
 						type: TokenType.NewLine,
 						value: '\n',
 					});
-
-					break;
-				}
-				case getCode('\t'): {
-					yield* this.pushToken({
-						type: TokenType.Tab,
-						value: '\t',
-					});
-
 					break;
 				}
 				default: {
