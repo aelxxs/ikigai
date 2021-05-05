@@ -8,7 +8,6 @@ export const enum TokenType {
 	TagEnd,
 	Space,
 	Literal,
-	NewLine,
 }
 
 export interface Token {
@@ -90,15 +89,8 @@ export class Lexer {
 					break;
 				}
 				case getCode('\n'): {
-					// ? Start of a new, reset col to 1.
 					this.position.col = 1;
 					this.position.line++;
-
-					yield* this.pushToken({
-						type: TokenType.NewLine,
-						value: '\n',
-					});
-					break;
 				}
 				default: {
 					this.buffer += char;
