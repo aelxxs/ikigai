@@ -62,11 +62,17 @@ export function interpret(node: ASTNode | ASTNode[]): string {
 
 	switch (node.type) {
 		case ASTNodeType.Literal:
-		// 🤔
+			// 🍣
+			break;
 		case ASTNodeType.Argument:
-		// 😲
-		case ASTNodeType.Tag:
-		// 😀
+			// 🍚
+			break;
+		case ASTNodeType.Function:
+			// 🍡
+			break;
+		case ASTNodeType.Variable:
+			// 🍙
+			break;
 	}
 }
 ```
