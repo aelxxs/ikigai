@@ -2,7 +2,8 @@ import { Lexer, TokenType, ReadonlyToken, TokenGenerator } from './Lexer';
 
 export const enum ASTNodeType {
 	Literal,
-	Tag,
+	Variable,
+	Function,
 	Argument,
 }
 
@@ -11,18 +12,23 @@ export interface ASTLiteralNode {
 	value: string;
 }
 
-export interface ASTTagNode {
-	type: ASTNodeType.Tag;
+export interface ASTFunctionNode {
+	type: ASTNodeType.Function;
 	name: string;
 	args?: ASTNode[];
 }
 
 export interface ASTArgumentNode {
 	type: ASTNodeType.Argument;
-	stems?: ASTNode[];
+	stems: ASTNode[];
 }
 
-export type ASTNode = ASTLiteralNode | ASTArgumentNode | ASTTagNode;
+export interface ASTVariableNode {
+	type: ASTNodeType.Variable;
+	name: string;
+}
+
+export type ASTNode = ASTLiteralNode | ASTArgumentNode | ASTVariableNode | ASTFunctionNode;
 
 export class Parser {
 	private input: TokenGenerator;
@@ -64,6 +70,8 @@ export class Parser {
 	private parseTag(): ASTNode {
 		let done = false;
 
+		let tag: ASTNode;
+
 		const name = this.omit(TokenType.Space).value;
 		const next = this.omit(TokenType.Space);
 
@@ -80,10 +88,21 @@ export class Parser {
 			if (!args.length) {
 				throw '[ERROR]: Tag payload must have at least one argument.';
 			}
+
+			tag = {
+				type: ASTNodeType.Function,
+				name,
+				args,
+			};
 		}
 
 		if (next.type === TokenType.TagEnd) {
 			done = true;
+
+			tag = {
+				type: ASTNodeType.Variable,
+				name,
+			};
 		}
 
 		while (!done) {
@@ -92,15 +111,6 @@ export class Parser {
 			if (token.type === TokenType.TagEnd) {
 				break;
 			}
-		}
-
-		const tag: ASTNode = {
-			type: ASTNodeType.Tag,
-			name,
-		};
-
-		if (args.length) {
-			tag.args = args;
 		}
 
 		return tag;
