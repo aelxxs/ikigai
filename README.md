@@ -26,18 +26,18 @@ const nodes = parse('Hello {user.name} {choose:😀|👋|🎉}!');
 console.dir(nodes, { depth: null });
 
 // Parser AST Output
-// 0: Literal | 1: Tag | 2: Tag Argument
+// 0: Literal | 1: Variable | 2: Function | 3: Argument
 [
 	{ type: 0, value: 'Hello ' },
 	{ type: 1, name: 'user.name' },
 	{ type: 0, value: ' ' },
 	{
-		type: 1,
+		type: 2,
 		name: 'choose',
 		args: [
-			{ type: 2, stems: [{ type: 0, value: '😀' }] },
-			{ type: 2, stems: [{ type: 0, value: '👋' }] },
-			{ type: 2, stems: [{ type: 0, value: '🎉' }] },
+			{ type: 3, stems: [{ type: 0, value: '😀' }] },
+			{ type: 3, stems: [{ type: 0, value: '👋' }] },
+			{ type: 3, stems: [{ type: 0, value: '🎉' }] },
 		],
 	},
 	{ type: 0, value: '!' },
