@@ -91,7 +91,9 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ### Contact
 
-Alexis Vielma • hello@alexis.kr
+Name: Alexis Vielma
+Email: hello@alexis.kr
+Website: [https://alexis.kr](https://alexis.kr)
 
 Project Link: [https://github.com/ohagiiman/ikigai](https://github.com/ohagiiman/ikigai)
 
