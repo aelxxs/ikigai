@@ -77,12 +77,6 @@ export function interpret(node: ASTNode | ASTNode[]): string {
 }
 ```
 
-<!-- ROADMAP -->
-
-### Roadmap
-
--   [ ] Add better error messages
-
 ### License
 
 Distributed under the MIT License. See `LICENSE` for more information.
