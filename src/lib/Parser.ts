@@ -52,9 +52,7 @@ export class Parser {
 					buffer = '';
 				}
 				this.nodes.push(this.parseTag());
-			} else {
-				buffer += token.value;
-			}
+			} else buffer += token.value;
 		}
 
 		if (buffer.length) {
