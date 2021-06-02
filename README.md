@@ -50,9 +50,9 @@ ASTNode Interpretation is up to you to implement. Here's an example of what you 
 import { ASTNode, ASTNodeType } from '...';
 
 export function interpret(node: ASTNode | ASTNode[]): string {
-	let output = '';
-
 	if (Array.isArray(node)) {
+		let output = '';
+
 		for (const stem of node) {
 			output += interpret(stem);
 		}
