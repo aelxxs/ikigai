@@ -4,6 +4,6 @@ export function getCode(str: string): number {
 	return str.charCodeAt(0);
 }
 
-export function parse(content: string): ASTNode[] {
-	return new Parser(content).parse();
+export function parse(str: string): ASTNode[] {
+	return new Parser(str).parse();
 }
