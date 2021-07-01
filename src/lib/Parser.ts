@@ -91,7 +91,7 @@ export class Parser {
 				type: ASTNodeType.Function,
 				name,
 				args,
-			};
+			} as ASTFunctionNode;
 		}
 
 		if (next.type === TokenType.TagEnd) {
@@ -100,7 +100,7 @@ export class Parser {
 			tag = {
 				type: ASTNodeType.Variable,
 				name,
-			};
+			} as ASTVariableNode;
 		}
 
 		while (!done) {
@@ -111,7 +111,7 @@ export class Parser {
 			}
 		}
 
-		return tag;
+		return tag!;
 	}
 
 	private parseArg(): ASTNode | boolean {
@@ -146,7 +146,7 @@ export class Parser {
 			});
 		}
 
-		return stems.length ? { type: ASTNodeType.Argument, stems } : false;
+		return stems.length ? ({ type: ASTNodeType.Argument, stems } as ASTArgumentNode) : false;
 	}
 
 	private next(): ReadonlyToken {
