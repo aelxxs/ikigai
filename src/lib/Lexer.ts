@@ -1,5 +1,4 @@
 import { Stream } from './Stream';
-import { getCode } from './util';
 
 export const enum TokenType {
 	TagStart,
@@ -31,36 +30,36 @@ export class Lexer {
 		while (this.stream.next()) {
 			const char = this.stream.peek();
 
-			switch (getCode(char)!) {
-				case getCode('{'): {
+			switch (this.getCode(char)!) {
+				case this.getCode('{'): {
 					yield* this.pushToken({
 						type: TokenType.TagStart,
 						value: '{',
 					});
 					break;
 				}
-				case getCode(':'): {
+				case this.getCode(':'): {
 					yield* this.pushToken({
 						type: TokenType.Colon,
 						value: ':',
 					});
 					break;
 				}
-				case getCode('|'): {
+				case this.getCode('|'): {
 					yield* this.pushToken({
 						type: TokenType.Pipe,
 						value: '|',
 					});
 					break;
 				}
-				case getCode('}'): {
+				case this.getCode('}'): {
 					yield* this.pushToken({
 						type: TokenType.TagEnd,
 						value: '}',
 					});
 					break;
 				}
-				case getCode(' '): {
+				case this.getCode(' '): {
 					yield* this.pushToken({
 						type: TokenType.Space,
 						value: ' ',
@@ -92,5 +91,9 @@ export class Lexer {
 			this.buffer = '';
 			yield token;
 		}
+	}
+
+	private getCode(str: string): number {
+		return str.charCodeAt(0);
 	}
 }
