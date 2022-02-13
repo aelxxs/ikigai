@@ -89,7 +89,7 @@ Name: Alexis Vielma\
 Email: hello@alexis.kr\
 Website: [https://alexis.kr](https://alexis.kr)
 
-Project Link: [https://github.com/ohagiiman/ikigai](https://github.com/aelxxs/ikigai)
+Project Link: [https://github.com/aelxxs/ikigai](https://github.com/aelxxs/ikigai)
 
 <!-- ACKNOWLEDGEMENTS -->
 
