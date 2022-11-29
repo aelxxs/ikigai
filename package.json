@@ -8,7 +8,7 @@
 	"author": "Alexis Vielma",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "16.18.3",
+		"@types/node": "18.11.9",
 		"typescript": "4.9.3"
 	}
 }
